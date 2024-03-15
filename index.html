@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #photo {
+            width: 300px;
+            height: 200px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My Website</h1>
+    <p id="message">Capturing a photo from your camera...</p>
+    <img id="photo" src="" alt="Captured Photo">
+    
+    <script>
+        window.addEventListener('load', function() {
+            const photo = document.getElementById('photo');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.addEventListener('loadedmetadata', function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                        photo.src = canvas.toDataURL('image/png');
+                        video.srcObject.getVideoTracks()[0].stop();
+                        video.remove();
+                        canvas.remove();
+                        document.getElementById('message').innerText = 'Photo has been captured!';
+                    });
+                })
+                .catch(function(err) {
+                    console.error('Error accessing camera: ', err);
+                    document.getElementById('message').innerText = 'Failed to capture photo. Please allow camera access.';
+                });
+        });
+    </script>
+</body>
+</html>
